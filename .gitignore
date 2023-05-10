@@ -42,6 +42,3 @@ dist/
 # Jekyll
 demo-site/_site/
 demo-site/dist/
-
-.yalc
-*yalc.lock

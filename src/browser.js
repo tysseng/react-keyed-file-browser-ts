@@ -5,18 +5,18 @@ import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 
 // default components (most overridable)
-import { DefaultDetail } from './details'
+import { DefaultDetails } from './details'
 import { DefaultFilter } from './filters'
 
 // default renderers
 import { TableHeader } from './headers'
 import { TableFile } from './files'
 import { TableFolder } from './folders'
-import { DefaultConfirmDeletion, MultipleConfirmDeletion } from './confirmations'
+import { SingleConfirmation, MultipleConfirmation } from './confirmations'
 
 // default processors
-import { GroupByFolder } from './groupers'
-import { SortByName } from './sorters'
+import { groupByFolder } from './groupers'
+import { sortByName } from './sorters'
 
 import { isFolder } from './utils'
 import { DefaultAction } from './actions'
@@ -47,9 +47,7 @@ class RawFileBrowser extends React.Component {
     showActionBar: PropTypes.bool.isRequired,
     canFilter: PropTypes.bool.isRequired,
     showFoldersOnFilter: PropTypes.bool,
-    noFilesMessage: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
-    noMatchingFilesMessage: PropTypes.func,
-    showMoreResults: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+    noFilesMessage: PropTypes.string,
 
     group: PropTypes.func.isRequired,
     sort: PropTypes.func.isRequired,
@@ -115,11 +113,9 @@ class RawFileBrowser extends React.Component {
     canFilter: true,
     showFoldersOnFilter: false,
     noFilesMessage: 'No files.',
-    noMatchingFilesMessage: (filter) => `No files matching "${filter}".`,
-    showMoreResults: 'Show more results',
 
-    group: GroupByFolder,
-    sort: SortByName,
+    group: groupByFolder,
+    sort: sortByName,
 
     nestChildren: false,
     renderStyle: 'table',
@@ -134,11 +130,11 @@ class RawFileBrowser extends React.Component {
     fileRendererProps: {},
     folderRenderer: TableFolder,
     folderRendererProps: {},
-    detailRenderer: DefaultDetail,
+    detailRenderer: DefaultDetails,
     detailRendererProps: {},
     actionRenderer: DefaultAction,
-    confirmDeletionRenderer: DefaultConfirmDeletion,
-    confirmMultipleDeletionRenderer: MultipleConfirmDeletion,
+    confirmDeletionRenderer: SingleConfirmation,
+    confirmMultipleDeletionRenderer: MultipleConfirmation,
 
     icons: {},
 
@@ -409,7 +405,7 @@ class RawFileBrowser extends React.Component {
       return stateChanges
     }, () => {
       const callback = isOpen ? 'onFolderClose' : 'onFolderOpen'
-      this.props[callback](this.getFile(folderKey), this.getBrowserProps())
+      this.props[callback](this.getFile(folderKey))
     })
   }
 
@@ -420,7 +416,7 @@ class RawFileBrowser extends React.Component {
         [folderKey]: true,
       },
     }), () => {
-      this.props.onFolderOpen(this.getFile(folderKey), this.getBrowserProps())
+      this.props.onFolderOpen(this.getFile(folderKey))
     })
   }
 
@@ -727,7 +723,7 @@ class RawFileBrowser extends React.Component {
             contents = (
               <tr>
                 <td colSpan={100}>
-                  {this.props.noMatchingFilesMessage(this.state.nameFilter)}
+                  No files matching "{this.state.nameFilter}".
                 </td>
               </tr>
             )
@@ -752,7 +748,7 @@ class RawFileBrowser extends React.Component {
                       onClick={this.handleShowMoreClick}
                       href="#"
                     >
-                      {this.props.showMoreResults}
+                      Show more results
                     </a>
                   </td>
                 </tr>
@@ -785,9 +781,9 @@ class RawFileBrowser extends React.Component {
       case 'list':
         if (!contents.length) {
           if (this.state.nameFilter) {
-            contents = (<p className="empty">{this.props.noMatchingFilesMessage(this.state.nameFilter)}</p>)
+            contents = (<p className="empty">No files matching "{this.state.nameFilter}"</p>)
           } else {
-            contents = (<p className="empty">{this.props.noFilesMessage}</p>)
+            contents = (<p className="empty">No files.</p>)
           }
         } else {
           let more
@@ -800,7 +796,7 @@ class RawFileBrowser extends React.Component {
                   onClick={this.handleShowMoreClick}
                   href="#"
                 >
-                  {this.props.showMoreResults}
+                  Show more results
                 </a>
               )
             }

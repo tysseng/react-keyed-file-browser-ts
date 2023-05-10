@@ -14,14 +14,11 @@ Check out the live demo here: http://uptick.github.io/react-keyed-file-browser/
 
 Install the package with npm:
 
-```bash
-# NPM
+```
 npm install react-keyed-file-browser
-
-# Yarn
-yarn add react-keyed-file-browser
 ```
 
+Then require and use with ES6 imports:
 
 ```javascript
 import React from 'react'
@@ -29,11 +26,12 @@ import ReactDOM from 'react-dom'
 
 import FileBrowser from 'react-keyed-file-browser'
 
+var mount = document.querySelectorAll('div.browser-mount');
 ReactDOM.render(
   <FileBrowser
     files={[]}
   />,
-  document.getElementById('root')
+  mount[0]
 );
 ```
 
@@ -79,18 +77,11 @@ Optionally, include the built css with an import:
 
 ```scss
 @import 'node_modules/react-keyed-file-browser/dist/react-keyed-file-browser.css';
-```
-or tag:
 
-```html
-<link
-  href="static/node_modules/react-keyed-file-browser/dist/react-keyed-file-browser.css"
-  rel="stylesheet"
->
 ```
-## Examples
 
-Using a custom drag and drop provider.
+Optionally, use your own React DND Provider:
+
 ```javascript
 import { RawFileBrowser } from 'react-keyed-file-browser'
 
@@ -102,6 +93,14 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 </DndProvider>
 ```
 
+or tag:
+
+```html
+<link
+  href="static/node_modules/react-keyed-file-browser/dist/react-keyed-file-browser.css"
+  rel="stylesheet"
+>
+```
 
 Full reference documentation coming soon. For now, take a look at the reference implementation with
 event handlers on the live demo at http://uptick.github.io/react-keyed-file-browser/.

@@ -1,7 +1,7 @@
 // @ts-nocheck
 import PropTypes from 'prop-types'
 import React from 'react'
-import { moveFilesAndFolders } from './utils'
+import { move } from './utils'
 
 class BaseFolder extends React.Component {
   static propTypes = {
@@ -76,7 +76,6 @@ class BaseFolder extends React.Component {
   }
   handleRenameSubmit = (event) => {
     event.preventDefault()
-    event.stopPropagation()
     if (!this.props.browserProps.renameFolder && !this.props.isDraft) {
       return
     }
@@ -120,7 +119,6 @@ class BaseFolder extends React.Component {
   }
   handleDeleteSubmit = (event) => {
     event.preventDefault()
-    event.stopPropagation()
     if (!this.props.browserProps.deleteFolder) {
       return
     }
@@ -169,7 +167,7 @@ const dragSource = {
   },
 
   endDrag(props, monitor, component) {
-    moveFilesAndFolders(props, monitor, component)
+    move(props, monitor, component)
   },
 }
 
