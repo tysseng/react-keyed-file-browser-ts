@@ -1,8 +1,8 @@
 import React from 'react'
-import { isFontAwesomeEnabled } from '@module/utils'
-import { FontAwesomeVersion, IconsProp } from '@module/types'
+import { isFontAwesomeEnabled } from '../utils'
+import { FontAwesomeVersion, IconsProp } from '../types'
 
-const FontAwesome = (majorVersion: FontAwesomeVersion = 4): IconsProp => {
+const FontAwesome = (majorVersion: FontAwesomeVersion = 4): IconsProp | undefined => {
   switch (majorVersion) {
     case 4:
       isFontAwesomeEnabled(4)

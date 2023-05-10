@@ -10,8 +10,8 @@ import {
   endOfMonth,
   getMonth,
 } from 'date-fns'
+import { FileBrowserWindow } from '../types'
 
-import type { FileBrowserWindow } from '@module/types'
 
 function relativeTimeWindows() {
   const windows: FileBrowserWindow[] = []

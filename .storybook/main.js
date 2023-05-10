@@ -1,7 +1,7 @@
 const path = require("path")
 
 module.exports = {
-  stories: ['../stories/index.js'],
+  stories: ['../stories/index.ts'],
   typescript: {
     check: false,
     checkOptions: {},

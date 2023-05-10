@@ -1,8 +1,8 @@
 import React from 'react'
-import type { DetailRendererProps } from '@module/types'
+import { DetailRendererProps } from '../types'
 
 const DefaultDetails: React.FC<DetailRendererProps> = ({ file, close }) => {
-  function handleCloseClick(event) {
+  function handleCloseClick(event: React.MouseEvent<HTMLAnchorElement>) {
     if (event) {
       event.preventDefault()
     }

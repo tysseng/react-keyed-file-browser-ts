@@ -1,4 +1,4 @@
-export const TYPES = {
+export const TYPES: {[key: string]: string} = {
   '7z': 'Archive',
   aac: 'Audio',
   avi: 'Video',

@@ -1,27 +1,29 @@
-import { sortByDefault } from '@module/sorters'
+import { sortByDefault } from './by-default'
+import { FileBrowserFile, FileBrowserTree, FileBrowserTreeGroupNode, isDraftType, isFolderType } from '../types'
 
-function naturalDraftComparer(a, b) {
-  if (a.draft && !b.draft) {
+function naturalDraftComparer(a: FileBrowserTreeGroupNode, b: FileBrowserTreeGroupNode) {
+  if (isDraftType(a) && !isDraftType(b)) {
     return 1
-  } else if (b.draft && !a.draft) {
+  } else if (isDraftType(b) && !isDraftType(a)) {
     return -1
   }
   return sortByDefault(a, b)
 }
 
-function sortByName(allFiles) {
-  let folders = []
-  let files = []
+function sortByName(allFiles: FileBrowserTree): FileBrowserTree {
+  let folders: FileBrowserTreeGroupNode[] = []
+  let files: FileBrowserFile[] = []
 
   for (let fileIndex = 0; fileIndex < allFiles.length; fileIndex++) {
     const file = allFiles[fileIndex]
-    const keyFolders = (file.newKey || file.key).split('/')
-    if (file.children) {
+    // const keyFolders = (file.newKey || file.key).split('/') // Cannot see that file is set anywhere
+    const keyFolders = file.key.split('/')
+    if (isFolderType(file)) {
       if (!file.name) {
         file.name = keyFolders[keyFolders.length - 2]
       }
       folders.push(file)
-    } else {
+    } else { // is file
       if (!file.name) {
         file.name = keyFolders[keyFolders.length - 1]
       }
@@ -37,10 +39,10 @@ function sortByName(allFiles) {
     folder.children = sortByName(folder.children)
   }
 
-  let sortedFiles = []
-  sortedFiles = sortedFiles.concat(folders)
-  sortedFiles = sortedFiles.concat(files)
-  return sortedFiles
+  return [
+      ...folders,
+      ...files,
+  ]
 }
 
 export { sortByName }

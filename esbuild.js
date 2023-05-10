@@ -2,7 +2,7 @@ const { build } = require('esbuild')
 const { nodeExternalsPlugin } = require('esbuild-node-externals')
 
 build({
-  entryPoints: ['src/index.js'],
+  entryPoints: ['src/index.ts'],
   outdir: 'dist',
   bundle: true,
   sourcemap: true,

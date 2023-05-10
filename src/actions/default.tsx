@@ -1,5 +1,5 @@
 import React from 'react'
-import type { ActionRendererProps } from '@module/types'
+import { ActionRendererProps } from '../types'
 
 const DefaultAction = (props: ActionRendererProps) => {
   const {

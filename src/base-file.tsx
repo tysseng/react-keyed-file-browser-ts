@@ -1,130 +1,162 @@
-import React, { useState } from 'react'
+import React from 'react'
+import { move } from './utils'
+import { EXTENSION } from './constants'
+import { DraggedFile, DropResult, FileRendererProps, ItemProps } from './types'
+import { DragSourceConnector, DragSourceMonitor, DropTargetConnector, DropTargetMonitor } from 'react-dnd'
 
-import { move } from '@module/utils'
-import { EXTENSION } from '@module/constants'
+class BaseFile<T> extends React.Component<FileRendererProps<T>> {
 
-import type {  } from '@module/types'
+  state = {
+    newName: this.getName(),
+  }
 
-const BaseFile: React.FC<Props> = ({ url, newKey, fileKey, browserProps, isDragging, action, connectDragSource, connectDropTarget }) => {
-  const [name, setName] = useState('')
+  selectFileNameFromRef(element: HTMLInputElement) {
+    if (element) {
+      const currentName = element.value
+      const pointIndex = currentName.lastIndexOf('.')
+      element.setSelectionRange(0, pointIndex || currentName.length)
+      element.focus()
+    }
+  }
 
-  function getName(): string {
-    let name = newKey || fileKey
+  getName() {
+    let name: string = this.props.newKey || this.props.fileKey
     const slashIndex = name.lastIndexOf('/')
-
     if (slashIndex !== -1) {
       name = name.substr(slashIndex + 1)
     }
-
     return name
   }
-
-  function getExtension(): string {
-    const blobs = fileKey.split('.')
-
+  getExtension() {
+    const blobs = this.props.fileKey.split('.')
     return blobs[blobs.length - 1].toLowerCase().trim()
   }
 
-  function getFileType(): string {
-    return EXTENSION.TYPES[getExtension()] || 'File'
+  getFileType() {
+    return EXTENSION.TYPES[this.getExtension()] || 'File'
   }
 
-  function handleFileClick(event): void {
+  handleFileClick = (event: React.MouseEvent) => {
     event && event.preventDefault()
-    browserProps.preview({
-      url,
-      name: getName(),
-      key: fileKey,
-      extension: getExtension(),
+    this.props.browserProps.preview({
+      url: this.props.url,
+      name: this.getName(),
+      key: this.props.fileKey,
+      extension: this.getExtension(),
     })
   }
-
-  function handleItemClick(event): void {
+  handleItemClick = (event: React.MouseEvent) => {
     event.stopPropagation()
-
-    browserProps.select(fileKey, 'file', event.ctrlKey || event.metaKey, event.shiftKey)
+    this.props.browserProps.select(this.props.fileKey, 'file', event.ctrlKey || event.metaKey, event.shiftKey)
+  }
+  handleItemDoubleClick = (event: React.MouseEvent) => {
+    event.stopPropagation()
+    this.handleFileClick(event)
   }
 
-  function handleItemDoubleClick(event): void {
-    event.stopPropagation()
-    handleFileClick(event)
-  }
-
-  function handleRenameClick(event): void {
-    if (!browserProps.renameFile) {
+  handleRenameClick = () => {
+    if (!this.props.browserProps.renameFile) {
       return
     }
-
-    browserProps.beginAction('rename', fileKey)
+    this.props.browserProps.beginAction('rename', [this.props.fileKey])
   }
-
-  function handleNewNameChange(event): void {
-    setName(event.target.value)
+  handleNewNameChange = (event: React.FormEvent<HTMLInputElement>) => {
+    const newName = event.currentTarget.value
+    this.setState({ newName: newName })
   }
-
-  function handleDeleteClick(event): void {
-    if (!browserProps.deleteFolder) {
+  handleRenameSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    if (event) {
+      event.preventDefault()
+    }
+    if (!this.props.browserProps.renameFile) {
       return
     }
-
-    browserProps.beginAction('delete', fileKey)
+    const newName = this.state.newName.trim()
+    if (newName.length === 0) {
+      // todo: move to props handler
+      // window.notify({
+      //   style: 'error',
+      //   title: 'Invalid new file name',
+      //   body: 'File name cannot be blank',
+      // })
+      return
+    }
+    const invalidChar = ['/', '\\']
+    if (invalidChar.some(char => newName.indexOf(char) !== -1)) return
+    // todo: move to props handler
+    // window.notify({
+    //   style: 'error',
+    //   title: 'Invalid new file name',
+    //   body: 'File names cannot contain forward slashes.',
+    // })
+    let newKey = newName
+    const slashIndex = this.props.fileKey.lastIndexOf('/')
+    if (slashIndex !== -1) {
+      newKey = `${this.props.fileKey.substr(0, slashIndex)}/${newName}`
+    }
+    this.props.browserProps.renameFile(this.props.fileKey, newKey)
   }
 
-  function handleDeleteSubmit(event): void {
+  handleDeleteClick = (event: React.MouseEvent) => {
+    if (!this.props.browserProps.deleteFile) {
+      return
+    }
+    this.props.browserProps.beginAction('delete', [this.props.fileKey])
+  }
+  handleDeleteSubmit = (event: React.FormEvent) => {
     event.preventDefault()
-    if (!browserProps.deleteFolder) {
+    if (!this.props.browserProps.deleteFile) {
       return
     }
-    browserProps.deleteFolder(browserProps.actionTargets)
+
+    this.props.browserProps.deleteFile(this.props.browserProps.actionTargets[0]) //TODO: Fishy
   }
 
-  function handleCancelEdit(event): void {
-    browserProps.endAction()
+  handleCancelEdit = () => {
+    this.props.browserProps.endAction()
   }
 
-  function toggleFolder(): void {
-    browserProps.toggleFolder(fileKey)
-  }
-
-  function connectDND(render) {
-    const inAction = (isDragging || action)
-    if (keyDerived) {
-      if (
-        typeof browserProps.moveFolder === 'function' &&
+  connectDND(render: JSX.Element) {
+    const inAction = (this.props.isDragging || this.props.action)
+    if (
+        typeof this.props.browserProps.moveFile === 'function' &&
         !inAction &&
         !this.props.isRenaming &&
-        !this.props.isDeleting
-      ) {
-        render = this.props.connectDragSource(render)
-      }
-      if (
-        typeof this.props.browserProps.createFiles === 'function' ||
-        typeof this.props.browserProps.moveFolder === 'function' ||
-        typeof this.props.browserProps.moveFile === 'function'
-      ) {
-        render = this.props.connectDropTarget(render)
-      }
+        this.props.connectDragSource
+    ) {
+      return this.props.connectDragSource(render)
+    }
+    if (
+        (typeof this.props.browserProps.createFiles === 'function' ||
+        typeof this.props.browserProps.moveFile === 'function' ||
+        typeof this.props.browserProps.moveFolder === 'function') &&
+        this.props.connectDropTarget
+    ) {
+      return this.props.connectDropTarget(render)
     }
     return render
   }
 }
 
 const dragSource = {
-  beginDrag(props) {
-    if (!props.browserProps.selection.length) {
-      props.browserProps.select(props.fileKey, 'folder')
+  beginDrag(props: FileRendererProps<ItemProps>): DraggedFile {
+    if (
+        !props.browserProps.selection.length ||
+        !props.browserProps.selection.includes(props.fileKey)
+    ) {
+      props.browserProps.select(props.fileKey, 'file')
     }
     return {
       key: props.fileKey,
     }
   },
 
-  endDrag(props, monitor, component) {
+  endDrag(props: FileRendererProps<ItemProps>, monitor: DragSourceMonitor, component: DraggedFile) {
     move(props, monitor, component)
   },
 }
 
-function dragCollect(connect, monitor) {
+function dragCollect(connect: DragSourceConnector, monitor: DragSourceMonitor) {
   return {
     connectDragPreview: connect.dragPreview(),
     connectDragSource: connect.dragSource(),
@@ -132,9 +164,39 @@ function dragCollect(connect, monitor) {
   }
 }
 
+const targetSource = {
+  drop(props: FileRendererProps<ItemProps>, monitor: DropTargetMonitor<DraggedFile, DropResult>) {
+    if (monitor.didDrop()) {
+      return
+    }
+    const key = props.newKey || props.fileKey
+    const slashIndex = key.lastIndexOf('/')
+    const path = (slashIndex !== -1) ? key.substr(0, slashIndex + 1) : ''
+    const item = monitor.getItem()
+    if (item.files && props.browserProps.createFiles) {
+      props.browserProps.createFiles(item.files, path)
+    }
+    return {
+      path: path,
+    }
+  },
+}
+
+function targetCollect(connect: DropTargetConnector, monitor: DropTargetMonitor) {
+  return {
+    connectDropTarget: connect.dropTarget(),
+    isOver: monitor.isOver({ shallow: true }),
+  }
+}
+
 const BaseFileConnectors = {
   dragSource,
   dragCollect,
+  targetSource,
+  targetCollect,
 }
 
-export { BaseFile, BaseFileConnectors }
+export default BaseFile
+export {
+  BaseFileConnectors,
+}

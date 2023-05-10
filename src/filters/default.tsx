@@ -1,8 +1,8 @@
 import React from 'react'
-import type { FilterRendererProps } from '@module/types'
+import { FilterRendererProps } from '../types'
 
 const DefaultFilter: React.FC<FilterRendererProps> = ({ value, updateFilter }) => {
-  function handleFilterChange(event) {
+  function handleFilterChange(event: React.ChangeEvent<HTMLInputElement>) {
     updateFilter(event.target.value)
   }
 

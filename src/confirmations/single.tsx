@@ -1,5 +1,5 @@
 import React from 'react'
-import type { ConfirmDeletionRendererProps } from '@module/types'
+import { ConfirmDeletionRendererProps } from '../types'
 
 const SingleConfirmation: React.FC<ConfirmDeletionRendererProps> = ({
   children,

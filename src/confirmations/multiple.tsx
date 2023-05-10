@@ -1,5 +1,5 @@
 import React from 'react'
-import type { ConfirmMultipleDeletionRendererProps } from '@module/types'
+import { ConfirmMultipleDeletionRendererProps } from '../types'
 
 const MultipleConfirmation: React.FC<ConfirmMultipleDeletionRendererProps> = ({ handleDeleteSubmit }) => {
   return (
